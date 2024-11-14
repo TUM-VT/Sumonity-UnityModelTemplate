@@ -639,7 +639,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7193673960299363686}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba5ef8e3c8854ee298508967be84f430, type: 3}
+  m_Script: {fileID: 11500000, guid: 5a54c7f4a260daa46af4ccf7617e8ce2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   currentSpeed: 0
@@ -650,7 +650,7 @@ MonoBehaviour:
   deceleration: 5
   maxSteeringAngle: 25
   wheelBase: 0
-  wheelRadius: 0.52
+  wheelRadius: 0.1
   wheelJointFL: {fileID: 0}
   wheelFL: {fileID: 607350497519483542}
   wheelJointFR: {fileID: 0}
