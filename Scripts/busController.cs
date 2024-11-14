@@ -7,7 +7,7 @@ namespace tum_taxi_controller
 {
 
 
-    public class TaxiController : MonoBehaviour, IVehicleController {
+    public class BusController : MonoBehaviour, IVehicleController {
 
         public string id { get; set; } // SUMO Identifiert in Vehicle Dictionary
         private Rigidbody rb;
