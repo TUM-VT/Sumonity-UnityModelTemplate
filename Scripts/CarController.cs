@@ -7,7 +7,7 @@ namespace tum_taxi_controller
 {
 
 
-    public class TaxiController : MonoBehaviour, IVehicleController {
+    public class CarController : MonoBehaviour, IVehicleController {
 
         public string id { get; set; } // SUMO Identifiert in Vehicle Dictionary
         private Rigidbody rb;
@@ -26,7 +26,7 @@ namespace tum_taxi_controller
         public float deceleration = 5f;
         public float maxSteeringAngle = 25f;
         public float wheelBase; // Distance between front and rear axle
-        public float wheelRadius = 0.25f; // [m]
+        public float wheelRadius = 0.1f; // [m]
         private float steeringInput = 0f;
 
         public GameObject wheelJointFL;
@@ -53,7 +53,7 @@ namespace tum_taxi_controller
         void Start()
         {
             rb = GetComponent<Rigidbody>();
-            wheelBase = 8.0f; // Adjust based on your bus model
+            wheelBase = 3.0f; // Adjust based on your bus model
 
 
             // get the socketclient with the step info
