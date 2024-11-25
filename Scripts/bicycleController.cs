@@ -7,7 +7,7 @@ namespace tum_taxi_controller
 {
 
 
-    public class TaxiController : MonoBehaviour, IVehicleController {
+    public class bicycleController : MonoBehaviour, IVehicleController {
 
         public string id { get; set; } // SUMO Identifiert in Vehicle Dictionary
         private Rigidbody rb;
@@ -53,7 +53,7 @@ namespace tum_taxi_controller
         void Start()
         {
             rb = GetComponent<Rigidbody>();
-            wheelBase = 8.0f; // Adjust based on your bus model
+            wheelBase = 1.2f; // Adjust based on your bus model
 
 
             // get the socketclient with the step info
@@ -118,6 +118,7 @@ namespace tum_taxi_controller
                 bool isInsidePhsyicsArea = Vehicle.SumoVehicleDetect(ref sock, id);
 
                 Debug.Log("isInsidePhsyicsArea: " + isInsidePhsyicsArea);
+
                 
                 float steeringGain = (float)0.01;
 
