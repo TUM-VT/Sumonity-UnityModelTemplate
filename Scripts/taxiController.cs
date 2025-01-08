@@ -27,7 +27,7 @@ namespace tum_car_controller
         public float deceleration = 5f;
         public float maxSteeringAngle = 25f;
         public float wheelBase; // Distance between front and rear axle
-        public float wheelRadius = 0.1f; // [m]
+        public float wheelRadius = 0.25f; // [m]
         private float steeringInput = 0f;
 
         [Header("Wheel References")]
@@ -51,7 +51,7 @@ namespace tum_car_controller
         void Start()
         {
             rb = GetComponent<Rigidbody>();
-            wheelBase = 3.0f; // Adjust based on your bus model
+            wheelBase = 8.0f; // Adjust based on your bus model
 
             // Initialize SUMO integration
             InitializeSumoIntegration();
