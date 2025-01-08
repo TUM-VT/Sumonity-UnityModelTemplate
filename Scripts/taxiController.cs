@@ -1,23 +1,24 @@
 using UnityEngine;
+using tumvt.sumounity; 
+using static tumvt.sumounity.Vehicle;  
 
-
-using tumvt.sumounity;
-
-namespace tum_taxi_controller
+namespace tum_car_controller
 {
-
-
-    public class TaxiController : MonoBehaviour, IVehicleController {
-
-        public string id { get; set; } // SUMO Identifiert in Vehicle Dictionary
+    public class TaxiController : MonoBehaviour, IVehicleController 
+    {
+        public string id { get; set; } // SUMO Identifier in Vehicle Dictionary
         private Rigidbody rb;
+        
+        [Header("Vehicle Control")]
         private bool inputAccelerate = false;
         private bool inputBrake = false;
         private float toruqeInputAccelerate = 0f;
         private float toruqeInputBrake = 0f;
         private bool inputLeft = false;
         private bool inputRight = false;
+        private bool isTeleportOnlyMode = false;
 
+        [Header("Vehicle Parameters")]
         public float currentSpeed = 0.0f;
         public float maxSpeed = 20f; // m/s
         public float acceleration = 10f;
@@ -26,9 +27,10 @@ namespace tum_taxi_controller
         public float deceleration = 5f;
         public float maxSteeringAngle = 25f;
         public float wheelBase; // Distance between front and rear axle
-        public float wheelRadius = 0.25f; // [m]
+        public float wheelRadius = 0.1f; // [m]
         private float steeringInput = 0f;
 
+        [Header("Wheel References")]
         public GameObject wheelJointFL;
         public GameObject wheelFL;
         public GameObject wheelJointFR;
@@ -36,37 +38,115 @@ namespace tum_taxi_controller
         public GameObject wheelRL;
         public GameObject wheelRR;
 
-
-        // for sumo integration
-        SumoSocketClient sock;
+        [Header("SUMO Integration")]
+        private SumoSocketClient sock;  // Reference to SUMO socket client
         private PIDController pidControllerSpeed;
         private PIDController pidControllerDist;
-
         private bool bDrawGizmo;
         private Vector2 lookAheadMarker;
         public bool isSumoVehicle = true;
         private Vector2 rbMarker;
-
         private float stopState;
-
 
         void Start()
         {
             rb = GetComponent<Rigidbody>();
-            wheelBase = 8.0f; // Adjust based on your bus model
+            wheelBase = 3.0f; // Adjust based on your bus model
 
+            // Initialize SUMO integration
+            InitializeSumoIntegration();
+        }
 
-            // get the socketclient with the step info
+        private void InitializeSumoIntegration()
+        {
+            // Get the socketclient with the step info
             sock = GameObject.FindObjectOfType<SumoSocketClient>();
 
-            // velocity controller
+            // Initialize controllers
             pidControllerDist = new PIDController(15.0f, 0.0f, 0.0f); 
             pidControllerSpeed = new PIDController(1.0f, 0.0f, 0.0f); 
             bDrawGizmo = true;
-
-
         }
 
+        void Update()
+        {
+            if(isSumoVehicle)
+            {
+                UpdateSumoVehicle();
+            }
+            else
+            {
+                UpdateManualInput();
+            }
+        }
+
+        private void UpdateSumoVehicle()
+        {
+            // feature not implemented yet. Will be used for performance optimization in user simulation studies.
+            bool isInsidePhsyicsArea = SumoVehicleDetect(ref sock, id); // will always be true in the current state
+            
+            if (!isInsidePhsyicsArea || isTeleportOnlyMode)
+            {
+                HandleOutsidePhysicsArea();
+            }
+            else
+            {
+                HandleInsidePhysicsArea();
+            }
+        }
+
+        private void HandleOutsidePhysicsArea()
+        {
+            rb = SumoTaxiTeleport(
+                ref sock, 
+                id, 
+                rb, 
+                0.01f, // steeringGain
+                ref pidControllerSpeed, 
+                ref pidControllerDist, 
+                ref lookAheadMarker
+            );           
+            rb.isKinematic = true;
+        }
+
+        private void HandleInsidePhysicsArea()
+        {
+            rb.isKinematic = false;
+            rbMarker.x = rb.position.x;
+            rbMarker.y = rb.position.z;
+
+            var (steeringValue, torqueInput, desiredVelocity) = 
+                SumoVehicleControl(
+                    ref sock, 
+                    id, 
+                    rb, 
+                    0.01f, // steeringGain
+                    ref pidControllerSpeed, 
+                    ref pidControllerDist, 
+                    ref lookAheadMarker
+                );
+
+            UpdateVehicleControls(steeringValue, torqueInput, desiredVelocity);
+            stopState = getVehicleStopState(ref sock, id);
+        }
+
+        private void UpdateVehicleControls(float steeringValue, float torqueInput, float desiredVelocity)
+        {
+            maxSpeed = desiredVelocity;
+
+            if (torqueInput > 0)
+            {
+                toruqeInputAccelerate = torqueInput;
+                toruqeInputBrake = 0f;
+            }
+            else
+            {
+                toruqeInputBrake = torqueInput;
+                toruqeInputAccelerate = 0f;
+            }
+
+            steeringInput = steeringValue;
+        }
 
         void RotateWheels()
         {
@@ -108,70 +188,22 @@ namespace tum_taxi_controller
             }
         }
 
-
-
-        void Update()
+        void UpdateManualInput()
         {
-            // sumo input
-            if(isSumoVehicle){
+            inputBrake = Input.GetKey(KeyCode.UpArrow);
+            inputAccelerate = Input.GetKey(KeyCode.DownArrow);
+            inputLeft = Input.GetKey(KeyCode.LeftArrow);
+            inputRight = Input.GetKey(KeyCode.RightArrow);
 
-                bool isInsidePhsyicsArea = Vehicle.SumoVehicleDetect(ref sock, id);
-
-                Debug.Log("isInsidePhsyicsArea: " + isInsidePhsyicsArea);
-                
-                float steeringGain = (float)0.01;
-
-                if (!isInsidePhsyicsArea){
-                    Debug.LogError("Teleporting Vehicle");
-                    rb = Vehicle.SumoTaxiTeleport(ref sock, id, rb, steeringGain, ref pidControllerSpeed, ref pidControllerDist, ref lookAheadMarker);           
-                    rb.isKinematic = true; // this makes the vehicle not move in the physics world
-                    Debug.LogError("rb.position: " +rb.position);
-                } 
-                else
-                {
-                    Debug.LogError("Vehicle is inside Physics Area");
-                    rb.isKinematic = false;
-                    rbMarker.x = rb.position.x;
-                    rbMarker.y = rb.position.z;
-
-                    var (steeringValue, torqueInput, desiredVelocity) = Vehicle.SumoVehicleControl(ref sock, id, rb, steeringGain, ref pidControllerSpeed, ref pidControllerDist, ref lookAheadMarker);
-
-                    maxSpeed = desiredVelocity;
-
-                    if (torqueInput>0){
-                        toruqeInputAccelerate = torqueInput;
-                        toruqeInputBrake = 0f;
-                    }
-
-                    else{
-                        toruqeInputBrake = torqueInput;
-                        toruqeInputAccelerate = 0f;
-                    }
-
-                    steeringInput = steeringValue;
-
-                    stopState = Vehicle.getVehicleStopState(ref sock, id);
-                }
+            steeringInput = 0f;
+            if (inputLeft)
+            {
+                steeringInput = -0.1f;
             }
-            // manual input
-            else{
-                inputBrake = Input.GetKey(KeyCode.UpArrow);
-                inputAccelerate = Input.GetKey(KeyCode.DownArrow);
-                inputLeft = Input.GetKey(KeyCode.LeftArrow);
-                inputRight = Input.GetKey(KeyCode.RightArrow);
-
-                steeringInput = 0f;
-                if (inputLeft)
-                {
-                    steeringInput = -0.1f;
-                }
-                else if (inputRight)
-                {
-                    steeringInput = 0.1f;
-                }
-                
+            else if (inputRight)
+            {
+                steeringInput = 0.1f;
             }
-
         }
 
         void OnDrawGizmos(){
@@ -194,11 +226,15 @@ namespace tum_taxi_controller
             
             HandleAcceleration();
 
-            if (currentSpeed != 0)  // Only steer if the bus is moving
+            if (currentSpeed != 0)  // Only steer if vehicle is moving
             {
                 HandleSteering();
             }
-            ApplyPhysics();
+
+            if (!isTeleportOnlyMode)
+            {
+                ApplyPhysics();
+            }
 
         }
 
@@ -254,6 +290,11 @@ namespace tum_taxi_controller
         {
             Vector3 velocity = transform.forward * currentSpeed;
             rb.velocity = new Vector3(velocity.x, rb.velocity.y, velocity.z);
+        }
+
+        public void SetTeleportOnlyMode(bool value)
+        {
+            isTeleportOnlyMode = value;
         }
 
     }
