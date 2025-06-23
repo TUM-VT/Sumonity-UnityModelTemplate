@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7470823497634365692}
   - component: {fileID: 4413941446691263381}
   - component: {fileID: 2259828385615577670}
+  - component: {fileID: 7720887439848199794}
   m_Layer: 0
   m_Name: FrontLeftDoor
   m_TagString: Untagged
@@ -83,6 +84,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!95 &7720887439848199794
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 542061179731250444}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: ce524e6fa47d15741a2999085ea7f267, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &767712507959762018
 GameObject:
   m_ObjectHideFlags: 0
@@ -367,6 +389,7 @@ GameObject:
   - component: {fileID: 7490285314346681957}
   - component: {fileID: 4465669946128472809}
   - component: {fileID: 1627457964302175868}
+  - component: {fileID: 3442349149731983912}
   m_Layer: 0
   m_Name: RearLeftDoor
   m_TagString: Untagged
@@ -439,6 +462,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!95 &3442349149731983912
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2281125212966199632}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 65b2ed4d3a6616848ae76342c4e4b38e, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &2829117897075478650
 GameObject:
   m_ObjectHideFlags: 0
@@ -450,6 +494,7 @@ GameObject:
   - component: {fileID: 678408407416301443}
   - component: {fileID: 1661291432248337626}
   - component: {fileID: 3403566906127388554}
+  - component: {fileID: 3895511492138024104}
   m_Layer: 0
   m_Name: FrontRightDoor
   m_TagString: Untagged
@@ -522,6 +567,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!95 &3895511492138024104
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2829117897075478650}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: cbc6d43db3d65f540a115504f54edd82, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &3027364899884733718
 GameObject:
   m_ObjectHideFlags: 0
@@ -747,6 +813,7 @@ GameObject:
   - component: {fileID: 8356219717356445411}
   - component: {fileID: 2825962733467816775}
   - component: {fileID: 7306409157791517794}
+  - component: {fileID: 2238347479586359961}
   m_Layer: 0
   m_Name: RearRightDoor
   m_TagString: Untagged
@@ -819,6 +886,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!95 &2238347479586359961
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3308037409533866617}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: ce26122686e8d5b41aa5bdaa0480e26e, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &5612327536429891076
 GameObject:
   m_ObjectHideFlags: 0
@@ -937,6 +1025,7 @@ GameObject:
   - component: {fileID: 7583566990408260124}
   - component: {fileID: 4495165629534593029}
   - component: {fileID: 3570371151507309413}
+  - component: {fileID: 312206307612624302}
   m_Layer: 0
   m_Name: Bus
   m_TagString: Untagged
@@ -1024,3 +1113,21 @@ MonoBehaviour:
   wheelRL: {fileID: 3027364899884733718}
   wheelRR: {fileID: 3308037409533866617}
   isSumoVehicle: 1
+--- !u!114 &312206307612624302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6610182245720111055}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5521862eb1ef7814abba669c10b87cea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  frontLeftAnimator: {fileID: 7720887439848199794}
+  frontRightAnimator: {fileID: 3895511492138024104}
+  rearLeftAnimator: {fileID: 3442349149731983912}
+  rearRightAnimator: {fileID: 2238347479586359961}
+  scenario: 2
+  navMeshSurface: {fileID: 0}
