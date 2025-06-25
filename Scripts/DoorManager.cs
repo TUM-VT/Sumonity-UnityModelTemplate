@@ -10,18 +10,6 @@ public class DoorManager : MonoBehaviour
     [SerializeField] private Animator rearLeftAnimator;
     [SerializeField] private Animator rearRightAnimator;
 
-
-    // private bool isOpen1 = false;
-    // private bool isOpen2 = false;
-    // private bool isOpen3 = false;
-    // private bool isOpen4 = false;
-
-    // private const string bus1Door = "One Door Open";
-    // private const string busAllOpen = "All Doors Open";
-    // private const string busFrontOpen = "Only Front Doors Open";
-    // private const string busMiddleDoorClosed = "BusMiddleDoorClosed"; 
-    // not working for this bus 3d model
-
     public enum ScenarioEnum
     {
         OnlyOneDoorOpen,
@@ -62,21 +50,21 @@ public class DoorManager : MonoBehaviour
     void Update()
     {   
         // just for testing purposes
-        Debug.Log("Station Counter: " + stationCounter);
-        if (isInStation && stationCounter % 1000 == 0)
-        {
-            // Debug.Log("In station, opening doors based on scenario: " + scenario);
-            openDoorsBasedOnScene(scenario);
-            isInStation = false; // Reset after opening doors
-        }
-        else if (stationCounter % 1000 == 500)
-        {
-            SetAllDoors(false);
-        }
-        stationCounter++;
+        // Debug.Log("Station Counter: " + stationCounter);
+        // if (isInStation && stationCounter % 1000 == 0)
+        // {
+        //     // Debug.Log("In station, opening doors based on scenario: " + scenario);
+        //     openDoorsBasedOnScene(scenario);
+        //     isInStation = false; // Reset after opening doors
+        // }
+        // else if (stationCounter % 1000 == 500)
+        // {
+        //     SetAllDoors(false);
+        // }
+        // stationCounter++;
     }
 
-    void BakeNavMeshAfterDoorsOpen()
+    public void BakeNavMeshAfterDoorsOpen()
     {
         if(navMeshSurface!=null)
         {
@@ -89,7 +77,7 @@ public class DoorManager : MonoBehaviour
         }
     }
 
-    void openDoorsBasedOnScene(ScenarioEnum scenario)
+    public void openDoorsBasedOnScene()
     {
         // Debug.Log("Opening doors based on scenario: " + scenario);
         switch (scenario)
@@ -109,6 +97,35 @@ public class DoorManager : MonoBehaviour
                 Debug.Log("Opening one door for scene");
                 SetLeftDoors(false);
                 SetRightDoors(true);
+                break;
+
+            default:
+                Debug.LogWarning("Unhandled scene");
+                SetAllDoors(false);
+                break;
+        }
+    }
+
+    public void CloseDoorsBasedOnScene()
+    {
+        // Debug.Log("Closing doors based on scenario: " + scenario);
+        switch (scenario)
+        {
+            case ScenarioEnum.AllDoorsOpen:
+                Debug.Log("Closing all doors for scene");
+                SetAllDoors(false);
+                break;
+
+            case ScenarioEnum.FrontDoorsOpen:
+                Debug.Log("Closing front doors for scene");
+                SetFrontDoors(false);
+                SetRearDoors(false);
+                break;
+
+            case ScenarioEnum.OnlyOneDoorOpen:
+                Debug.Log("Closing one door for scene");
+                SetLeftDoors(false);
+                SetRightDoors(false);
                 break;
 
             default:
