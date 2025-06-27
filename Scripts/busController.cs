@@ -2,7 +2,7 @@ using UnityEngine;
 using tumvt.sumounity; 
 using static tumvt.sumounity.Vehicle;  
 
-namespace tum_car_controller
+namespace tum_bus_controller
 {
     public class BusController : MonoBehaviour, IVehicleController 
     {

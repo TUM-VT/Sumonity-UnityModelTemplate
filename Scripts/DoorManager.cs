@@ -2,167 +2,140 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Unity.AI.Navigation;
 
-public class DoorManager : MonoBehaviour
+namespace tum_bus_controller
 {
-    [Header("Door Animators")]
-    [SerializeField] private Animator frontLeftAnimator;
-    [SerializeField] private Animator frontRightAnimator;
-    [SerializeField] private Animator rearLeftAnimator;
-    [SerializeField] private Animator rearRightAnimator;
-
-    public enum ScenarioEnum
+    public class DoorManager : MonoBehaviour
     {
-        OnlyOneDoorOpen,
-        AllDoorsOpen,
-        FrontDoorsOpen
-    }
+        [Header("Door Animators")]
+        [SerializeField] private Animator frontLeftAnimator;
+        [SerializeField] private Animator frontRightAnimator;
+        [SerializeField] private Animator rearLeftAnimator;
+        [SerializeField] private Animator rearRightAnimator;
+        private ScenarioEnum scenario;
 
-    [Header("Door Scenario Selection")]
-    [SerializeField] private ScenarioEnum scenario;
+        private const string boolParamFrontLeftString = "isFrontLeftDoorOpen";
+        private const string boolParamFrontRight = "isFrontRightDoorOpen";
+        private const string boolParamRearLeft = "isRearLeftDoorOpen";
+        private const string boolParamRearRight = "isRearRightDoorOpen";
 
-    private const string boolParamFrontLeftString = "isFrontLeftDoorOpen";
-    private const string boolParamFrontRight = "isFrontRightDoorOpen";
-    private const string boolParamRearLeft = "isRearLeftDoorOpen";
-    private const string boolParamRearRight = "isRearRightDoorOpen";
+        private GameObject frontLeftRamp;
+        private GameObject frontRightRamp;
+        private GameObject rearLeftRamp;
+        private GameObject rearRightRamp;
 
-    [Header("NavMesh Settings")]
-    // Ensure you have a NavMeshSurface component in your scene
-    [SerializeField] private NavMeshSurface navMeshSurface;
-
-    private bool isInStation = true;
-    private int stationCounter = 0;
-
-    void Start()
-    {
-        // UnityEngine.AI.NavMesh.RemoveAllNavMeshData();
-
-        // Set all doors to closed initially
-        SetAllDoors(false);
-        
-        // Open doors based on the current scene
-        // openDoorsBasedOnScene(scenario);
-
-        // Using Invoke to delay the NavMesh baking slightly to ensure doors are fully animated
-        // Invoke(nameof(BakeNavMeshAfterDoorsOpen), 0.5f);
-
-    }
-
-    void Update()
-    {   
-        // just for testing purposes
-        // Debug.Log("Station Counter: " + stationCounter);
-        // if (isInStation && stationCounter % 1000 == 0)
-        // {
-        //     // Debug.Log("In station, opening doors based on scenario: " + scenario);
-        //     openDoorsBasedOnScene(scenario);
-        //     isInStation = false; // Reset after opening doors
-        // }
-        // else if (stationCounter % 1000 == 500)
-        // {
-        //     SetAllDoors(false);
-        // }
-        // stationCounter++;
-    }
-
-    public void BakeNavMeshAfterDoorsOpen()
-    {
-        if(navMeshSurface!=null)
+        void Start()
         {
-            navMeshSurface.BuildNavMesh();
-            // Debug.Log("NavMesh baked after doors open.");
+            // Initialize door ramps
+            frontLeftRamp = GameObject.Find("FrontLeftRamp");
+            frontRightRamp = GameObject.Find("FrontRightRamp");
+            rearLeftRamp = GameObject.Find("RearLeftRamp");
+            rearRightRamp = GameObject.Find("RearRightRamp");
+
+            // Set all doors to closed initially
+            SetAllDoors(false);
+            scenario = GameObject.Find("ScenarioManager").GetComponent<ScenarioManager>().GetScenario();
+            Debug.Log("DoorManager initialized with scenario: " + scenario);
+
+
+
         }
-        else
+
+        public void openDoorsBasedOnScene()
         {
-            Debug.LogWarning("NavMeshSurface not assigned to Door Manager!");
-        }
-    }
+            // Debug.Log("Opening doors based on scenario: " + scenario);
+            switch (scenario)
+            {
+                case ScenarioEnum.AllDoorsOpen:
+                    Debug.Log("Opening all doors for scene");
+                    SetAllDoors(true);
+                    break;
 
-    public void openDoorsBasedOnScene()
-    {
-        // Debug.Log("Opening doors based on scenario: " + scenario);
-        switch (scenario)
+                case ScenarioEnum.FrontDoorsOpen:
+                    Debug.Log("Opening front doors for scene");
+                    SetFrontDoors(true);
+                    SetRearDoors(false);
+                    break;
+
+                case ScenarioEnum.OnlyOneDoorOpen:
+                    Debug.Log("Opening one door for scene");
+                    SetLeftDoors(false);
+                    SetRightDoors(true);
+                    break;
+
+                default:
+                    Debug.LogWarning("Unhandled scene");
+                    SetAllDoors(false);
+                    break;
+            }
+        }
+
+        public void CloseDoorsBasedOnScene()
         {
-            case ScenarioEnum.AllDoorsOpen:
-                Debug.Log("Opening all doors for scene");
-                SetAllDoors(true);
-                break;
+            // Debug.Log("Closing doors based on scenario: " + scenario);
+            switch (scenario)
+            {
+                case ScenarioEnum.AllDoorsOpen:
+                    Debug.Log("Closing all doors for scene");
+                    SetAllDoors(false);
+                    break;
 
-            case ScenarioEnum.FrontDoorsOpen:
-                Debug.Log("Opening front doors for scene");
-                SetFrontDoors(true);
-                SetRearDoors(false);
-                break;
+                case ScenarioEnum.FrontDoorsOpen:
+                    Debug.Log("Closing front doors for scene");
+                    SetFrontDoors(false);
+                    SetRearDoors(false);
+                    break;
 
-            case ScenarioEnum.OnlyOneDoorOpen:
-                Debug.Log("Opening one door for scene");
-                SetLeftDoors(false);
-                SetRightDoors(true);
-                break;
+                case ScenarioEnum.OnlyOneDoorOpen:
+                    Debug.Log("Closing one door for scene");
+                    SetLeftDoors(false);
+                    SetRightDoors(false);
+                    break;
 
-            default:
-                Debug.LogWarning("Unhandled scene");
-                SetAllDoors(false);
-                break;
+                default:
+                    Debug.LogWarning("Unhandled scene");
+                    SetAllDoors(false);
+                    break;
+            }
         }
-    }
 
-    public void CloseDoorsBasedOnScene()
-    {
-        // Debug.Log("Closing doors based on scenario: " + scenario);
-        switch (scenario)
+        void SetAllDoors(bool isOpen)
         {
-            case ScenarioEnum.AllDoorsOpen:
-                Debug.Log("Closing all doors for scene");
-                SetAllDoors(false);
-                break;
-
-            case ScenarioEnum.FrontDoorsOpen:
-                Debug.Log("Closing front doors for scene");
-                SetFrontDoors(false);
-                SetRearDoors(false);
-                break;
-
-            case ScenarioEnum.OnlyOneDoorOpen:
-                Debug.Log("Closing one door for scene");
-                SetLeftDoors(false);
-                SetRightDoors(false);
-                break;
-
-            default:
-                Debug.LogWarning("Unhandled scene");
-                SetAllDoors(false);
-                break;
+            SetFrontDoors(isOpen);
+            SetRearDoors(isOpen);
         }
-    }
 
-    void SetAllDoors(bool isOpen)
-    {
-        SetFrontDoors(isOpen);
-        SetRearDoors(isOpen);
-    }
+        void SetFrontDoors(bool isOpen)
+        {
+            frontLeftAnimator.SetBool(boolParamFrontLeftString, isOpen);
+            frontRightAnimator.SetBool(boolParamFrontRight, isOpen);
+            frontLeftRamp.SetActive(isOpen);
+            frontRightRamp.SetActive(isOpen);
+        }
 
-    void SetFrontDoors(bool isOpen)
-    {
-        frontLeftAnimator.SetBool(boolParamFrontLeftString, isOpen);
-        frontRightAnimator.SetBool(boolParamFrontRight, isOpen);
-    }
+        void SetRearDoors(bool isOpen)
+        {
+            rearLeftAnimator.SetBool(boolParamRearLeft, isOpen);
+            rearRightAnimator.SetBool(boolParamRearRight, isOpen);
+            rearLeftRamp.SetActive(isOpen);
+            rearRightRamp.SetActive(isOpen);
+        }
 
-    void SetRearDoors(bool isOpen)
-    {
-        rearLeftAnimator.SetBool(boolParamRearLeft, isOpen);
-        rearRightAnimator.SetBool(boolParamRearRight, isOpen);
-    }
+        void SetLeftDoors(bool isOpen)
+        {
+            frontLeftAnimator.SetBool(boolParamFrontLeftString, isOpen);
+            rearLeftAnimator.SetBool(boolParamRearLeft, isOpen);
+            frontLeftRamp.SetActive(isOpen);
+            rearLeftRamp.SetActive(isOpen);
+        }
 
-    void SetLeftDoors(bool isOpen)
-    {
-        frontLeftAnimator.SetBool(boolParamFrontLeftString, isOpen);
-        rearLeftAnimator.SetBool(boolParamRearLeft, isOpen);
-    }
+        void SetRightDoors(bool isOpen)
+        {
+            frontRightAnimator.SetBool(boolParamFrontRight, isOpen);
+            rearRightAnimator.SetBool(boolParamRearRight, isOpen);
+            frontRightRamp.SetActive(isOpen);
+            rearRightRamp.SetActive(isOpen);
+        }
 
-    void SetRightDoors(bool isOpen)
-    {
-        frontRightAnimator.SetBool(boolParamFrontRight, isOpen);
-        rearRightAnimator.SetBool(boolParamRearRight, isOpen);
-    }
 
+    }
 }
