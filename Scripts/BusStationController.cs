@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.AI.Navigation;
 using UnityEngine.AI;
+using tumvt.sumounity.PedestrianModel;
 
 namespace tum_bus_controller
 {
@@ -89,6 +90,18 @@ namespace tum_bus_controller
                 Debug.Log("Bus has entered the station area.");
                 busInStation = true;
                 bus = other.transform.root.gameObject;
+            }
+            else if (other.CompareTag("Player"))
+            {
+                Debug.Log("A passenger has entered the station area.");
+                // Handle passenger logic here if needed
+                var controller = other.GetComponent<ThirdPersonController>();
+                if (controller != null)
+                {
+                    // Pass the target boarding position inside the bus
+                    controller.BeginBoarding(bus.transform.position);
+                }
+                
             }
         }
 
