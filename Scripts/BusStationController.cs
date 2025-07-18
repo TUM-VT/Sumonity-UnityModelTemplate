@@ -90,6 +90,23 @@ namespace tum_bus_controller
                 Debug.Log("Bus has entered the station area.");
                 busInStation = true;
                 bus = other.transform.root.gameObject;
+                Debug.Log("BusFloor position: " + bus.transform.Find("BusFloor").position);
+                Debug.Log("Bus between doors collider position: " + bus.transform.Find("BetweenDoors").position);
+
+                // Get the lower bound (minimum y) of the BetweenDoors collider in world space
+                Collider betweenDoorsCollider = bus.transform.Find("BetweenDoors").GetComponent<Collider>();
+                Vector3 betweenDoorsMin = betweenDoorsCollider.bounds.min;
+                Debug.Log("BetweenDoors collider lower bound (world): " + betweenDoorsMin);
+
+                Debug.Log("Bus station floor plane position: " + this.transform.Find("Plane").position);
+
+                Collider frontRightDoorCollider = bus.transform.Find("FrontRightDoor").GetComponent<Collider>();
+                Debug.Log("FrontRightDoor collider lower bound (world): " + frontRightDoorCollider.bounds.min);
+
+                Collider frontRightRampCollider = bus.transform.Find("FrontRightRamp").GetComponent<Collider>();
+                Debug.Log("FrontRamp collider lower bound (world): " + frontRightRampCollider.bounds.min);
+                Debug.Log("FronttRamp collider upper bound (world): " + frontRightRampCollider.bounds.max);
+
             }
             else if (other.CompareTag("Player"))
             {
@@ -99,9 +116,10 @@ namespace tum_bus_controller
                 if (controller != null)
                 {
                     // Pass the target boarding position inside the bus
-                    controller.BeginBoarding(bus.transform.position);
+                    // Find the "BusFloor" child and use its center position
+                    Transform busFloor = bus.transform.Find("BusFloor");
+                    controller.BeginBoarding(busFloor.position);
                 }
-                
             }
         }
 
@@ -124,7 +142,8 @@ namespace tum_bus_controller
             tempNavMeshSurface = tempNavMeshSurfaceObj.AddComponent<NavMeshSurface>();
 
             // Set Use Geometry to Physics Colliders
-            tempNavMeshSurface.useGeometry = NavMeshCollectGeometry.RenderMeshes; // PhysicsColliders doens't work
+            tempNavMeshSurface.useGeometry = NavMeshCollectGeometry.PhysicsColliders; // PhysicsColliders doens't work
+            Debug.Log("bus nav mesh geometry " + tempNavMeshSurface.useGeometry.ToString());
 
             // Set Object Collection to All (or Volume if you want to restrict area)
             tempNavMeshSurface.collectObjects = CollectObjects.All;
