@@ -90,35 +90,23 @@ namespace tum_bus_controller
                 Debug.Log("Bus has entered the station area.");
                 busInStation = true;
                 bus = other.transform.root.gameObject;
-                Debug.Log("BusFloor position: " + bus.transform.Find("BusFloor").position);
-                Debug.Log("Bus between doors collider position: " + bus.transform.Find("BetweenDoors").position);
-
-                // Get the lower bound (minimum y) of the BetweenDoors collider in world space
-                Collider betweenDoorsCollider = bus.transform.Find("BetweenDoors").GetComponent<Collider>();
-                Vector3 betweenDoorsMin = betweenDoorsCollider.bounds.min;
-                Debug.Log("BetweenDoors collider lower bound (world): " + betweenDoorsMin);
-
-                Debug.Log("Bus station floor plane position: " + this.transform.Find("Plane").position);
-
-                Collider frontRightDoorCollider = bus.transform.Find("FrontRightDoor").GetComponent<Collider>();
-                Debug.Log("FrontRightDoor collider lower bound (world): " + frontRightDoorCollider.bounds.min);
-
-                Collider frontRightRampCollider = bus.transform.Find("FrontRightRamp").GetComponent<Collider>();
-                Debug.Log("FrontRamp collider lower bound (world): " + frontRightRampCollider.bounds.min);
-                Debug.Log("FronttRamp collider upper bound (world): " + frontRightRampCollider.bounds.max);
-
             }
             else if (other.CompareTag("Player"))
             {
                 Debug.Log("A passenger has entered the station area.");
-                // Handle passenger logic here if needed
                 var controller = other.GetComponent<ThirdPersonController>();
                 if (controller != null)
                 {
-                    // Pass the target boarding position inside the bus
-                    // Find the "BusFloor" child and use its center position
-                    Transform busFloor = bus.transform.Find("BusFloor");
-                    controller.BeginBoarding(busFloor.position);
+                    if (bus != null) // only if we have a bus in the station
+                    {
+                        Transform busFloor = bus.transform.Find("BusFloor");
+                        // Find the "BusFloor" child and use its center position
+
+                        Debug.Log("BusFloor position for boarding: " + busFloor.position);
+
+                        controller.BeginBoarding(busFloor.position);
+                        // Pass the target boarding position inside the bus
+                    }
                 }
             }
         }
