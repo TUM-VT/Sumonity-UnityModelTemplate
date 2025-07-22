@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.AI.Navigation;
 using UnityEngine.AI;
-using tumvt.sumounity.PedestrianModel;
+//using tumvt.sumounity.PedestrianModel;
 
 namespace tum_bus_controller
 {
@@ -19,7 +19,6 @@ namespace tum_bus_controller
         // private Transform[] originalParents = null;
 
         // Flags
-        private bool busInStation = false;
         private bool startedBoarding = false;
         private bool endedBoarding = false;
         private int frameCounter = 0;
@@ -28,6 +27,8 @@ namespace tum_bus_controller
         private GameObject bus;
         private float busSpeed = 0f;
         private const string busWheelTag = "BusWheel";
+        private List<GameObject> boardingPassengers = new List<GameObject>();
+        // private HashSet<GameObject> boardingPassengers = new HashSet<GameObject>(); // HashSet ensures that each object is tracked without duplicates
 
         void Start()
         {
@@ -44,42 +45,45 @@ namespace tum_bus_controller
 
         void FixedUpdate()
         {
-            if (bus != null)
+            if (bus != null) // bus in station
             {
-                if (busInStation)
+                busSpeed = bus.GetComponent<BusController>().currentSpeed;
+                DoorManager busDoorManager = bus.GetComponent<DoorManager>(); // should we decouple this?
+
+                if (!startedBoarding && !endedBoarding)
                 {
-                    busSpeed = bus.GetComponent<BusController>().currentSpeed;
-                    DoorManager busDoorManager = bus.GetComponent<DoorManager>();
+                    // We are checking if the bus is stationary only when it is in the station and has not started boarding yet
+                    if (busSpeed == 0)
+                        frameCounter++;
+                    else
+                        frameCounter = 0; // Reset if bus is moving
 
-                    if (!startedBoarding && !endedBoarding)
+                    if (busSpeed == 0 && frameCounter > 10)
                     {
-                        // We are checking if the bus is stationary only when it is in the station and has not started boarding yet
-                        if (busSpeed == 0)
-                            frameCounter++;
-                        else
-                            frameCounter = 0; // Reset if bus is moving
-
-                        if (busSpeed == 0 && frameCounter > 10)
-                        {
-                            startedBoarding = true;
-                            busDoorManager.openDoorsBasedOnScene();
-                            Invoke(nameof(CreateNavMeshForBoarding), 0.6f); // Delay to ensure doors are fully open
-                        }
-                    }
-                    else if (busSpeed > 0 && startedBoarding && !endedBoarding) // leaving the station
-                    {
-                        endedBoarding = true;
-                        busDoorManager.CloseDoorsBasedOnScene();
-                        RemoveNavMeshForBoarding();
+                        startedBoarding = true;
+                        busDoorManager.openDoorsBasedOnScene();
+                        Invoke(nameof(CreateNavMeshForBoarding), 0.6f); // Delay to ensure doors are fully open
                     }
                 }
-                else if (startedBoarding && endedBoarding)
+                else if (busSpeed > 0 && startedBoarding && !endedBoarding) // leaving the station
                 {
-                    startedBoarding = false;
-                    endedBoarding = false;
-                    frameCounter = 0; // Reset frame counter
+                    endedBoarding = true;
+                    busDoorManager.CloseDoorsBasedOnScene();
+                    RemoveNavMeshForBoarding();
+                }
+                else if (endedBoarding) // bus is in the station and boarding is done
+                {
+                    ResetPedestriansToSumoVehicles();
                 }
             }
+            else if (startedBoarding && endedBoarding) // bus left the station
+            {
+                startedBoarding = false;
+                endedBoarding = false;
+                frameCounter = 0; // Reset frame counter
+                // ResetPedestriansToSumoVehicles();
+            }
+
         }
 
         // Triggers
@@ -87,27 +91,30 @@ namespace tum_bus_controller
         {
             if (other.CompareTag(busWheelTag))
             {
-                Debug.Log("Bus has entered the station area.");
-                busInStation = true;
+                // Debug.Log("Bus has entered the station area.");
                 bus = other.transform.root.gameObject;
             }
             else if (other.CompareTag("Player"))
             {
-                Debug.Log("A passenger has entered the station area.");
-                var controller = other.GetComponent<ThirdPersonController>();
-                if (controller != null)
+                if (!boardingPassengers.Contains(other.gameObject))
                 {
+                    boardingPassengers.Add(other.gameObject);
+                    Debug.Log(other.gameObject.name + " has entered the station area.");
+                    //var controller = other.GetComponent<ThirdPersonController>();
+                    //if (controller != null)
+                    //{
                     if (bus != null) // only if we have a bus in the station
                     {
                         Transform busFloor = bus.transform.Find("BusFloor");
-                        // Find the "BusFloor" child and use its center position
+                        Debug.Log("BusFloor Bounds: " + busFloor.GetComponent<Collider>().bounds);
+                        other.gameObject.SendMessage("BeginBoarding", busFloor.GetComponent<Collider>().bounds);
 
-                        Debug.Log("BusFloor position for boarding: " + busFloor.position);
+                        //controller.BeginBoarding(busFloor.position);
 
-                        controller.BeginBoarding(busFloor.position);
-                        // Pass the target boarding position inside the bus
                     }
+                    //}
                 }
+                
             }
         }
 
@@ -115,10 +122,12 @@ namespace tum_bus_controller
         {
             if (other.CompareTag(busWheelTag))
             {
-                Debug.Log("Bus has exited the station area.");
+                // Debug.Log("Bus has exited the station area.");
                 bus = null;
-                busInStation = false;
-                // RemoveNavMeshForBoarding(); // Safety: remove if not already removed
+            }
+            else if (other.CompareTag("Player"))
+            {
+                boardingPassengers.Remove(other.gameObject);
             }
         }
 
@@ -151,6 +160,18 @@ namespace tum_bus_controller
                 Destroy(tempNavMeshSurfaceObj);  // Destroy the GameObject
                 tempNavMeshSurface = null;
                 tempNavMeshSurfaceObj = null;
+            }
+        }
+
+        void ResetPedestriansToSumoVehicles()
+        {
+            for (int i = 0; i < boardingPassengers.Count; i++)
+            {
+                GameObject passenger = boardingPassengers[i];
+                if (passenger != null)
+                {
+                    passenger.SendMessage("SetToSumoVehicle"); // sort of they miss the bus
+                }
             }
         }
 
